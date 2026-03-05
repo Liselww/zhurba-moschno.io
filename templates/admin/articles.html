@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Управління статтями{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">
+        <i class="bi bi-file-text"></i> Управління статтями
+    </h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Заголовок</th>
+                        <th>Автор</th>
+                        <th>Дата</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td>{{ article.id }}</td>
+                        <td>{{ article.title }}</td>
+                        <td>
+                            <img src="{{ article.author.avatar(25) }}" class="rounded-circle me-1" style="width: 25px; height: 25px;">
+                            {{ article.author.username }}
+                        </td>
+                        <td>{{ article.date.strftime('%d.%m.%Y') }}</td>
+                        <td>
+                            <a href="{{ url_for('post_detail', id=article.id) }}" class="btn btn-sm btn-info">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            
+                            <form action="{{ url_for('admin_delete_article', article_id=article.id) }}" method="POST" style="display:inline;"
+                                  onsubmit="return confirm('Видалити статтю?');">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

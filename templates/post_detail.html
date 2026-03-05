@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ article.title }} | Zhurba Interteiment{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Головна</a></li>
+            <li class="breadcrumb-item"><a href="/posts">Посты</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">{{ article.title }}</h1>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Основний контент -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <strong>{{ article.intro }}</strong>
+                    <a href="{{ url_for('user_profile', user_id=article.author.id) }}" class="text-white text-decoration-none">
+                        <span class="badge bg-light text-dark d-flex align-items-center">
+                            <img src="{{ article.author.avatar(25) }}" class="avatar-small me-1" alt="Avatar">
+                            {{ article.author.username }}
+                        </span>
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <!-- ГАЛЕРЕЯ ЗОБРАЖЕНЬ -->
+                    {% if article.images and article.images|length > 0 %}
+                        <div class="post-gallery mb-4">
+                            <div class="row g-2">
+                                {% for image in article.images %}
+                                    <div class="col-md-4 col-sm-6">
+                                        <a href="{{ url_for('static', filename='uploads/post_images/' + image.filename) }}" 
+                                           target="_blank" 
+                                           class="gallery-item d-block">
+                                            <img src="{{ url_for('static', filename='uploads/post_images/' + image.filename) }}"
+                                                 class="img-fluid rounded"
+                                                 alt="Post image {{ loop.index }}"
+                                                 style="width: 100%; height: 200px; object-fit: cover;">
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Текст статті з клікабельними посиланнями -->
+                    <div class="post-content">
+                        {{ article.text|urlize(target='_blank') }}
+                    </div>
+
+                    <!-- Інформація про автора -->
+                    <a href="{{ url_for('user_profile', user_id=article.author.id) }}" class="text-decoration-none text-dark">
+                        <div class="alert alert-secondary mt-4">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <img src="{{ article.author.avatar(60) }}" class="avatar-medium rounded-circle" alt="Author avatar">
+                                </div>
+                                <div>
+                                    <h5 class="mb-1">{{ article.author.username }}</h5>
+                                    <p class="mb-0">
+                                        <i class="bi bi-file-text"></i> {{ article.author.articles|length }} статей
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3"></i>
+                                        на сайті з {{ article.author.date_registered.strftime('%d.%m.%Y') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <p class="text-muted">
+                        <small>
+                            <i class="bi bi-calendar"></i> Дата публікації: {{ article.date.strftime('%Y-%m-%d %H:%M') }}
+                        </small>
+                    </p>
+                </div>
+
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if current_user.is_authenticated and current_user.id == article.user_id %}
+                                <a href="{{ url_for('post_update', id=article.id) }}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-pencil"></i> Редагувати
+                                </a>
+
+                                <form action="{{ url_for('post_delete', id=article.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Точно видалити?')">
+                                        <i class="bi bi-trash"></i> Удолить
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+
+                        <a href="{{ url_for('posts') }}" class="btn btn-secondary btn-sm">
+                            <i class="bi bi-arrow-left"></i> Назад
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- СЕКЦІЯ КОМЕНТАРІВ -->
+            <div class="card mb-4" id="comments">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-chat-dots"></i> 
+                        Коментарі ({{ article.comments|length if article.comments else 0 }})
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Форма додавання коментаря -->
+                    {% if current_user.is_authenticated %}
+                        <form action="{{ url_for('add_comment', article_id=article.id) }}" method="POST" class="mb-4">
+                            <div class="mb-3">
+                                <label for="commentText" class="form-label">Ваш коментар:</label>
+                                <textarea class="form-control" id="commentText" name="text" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Додати коментар
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            <a href="{{ url_for('login') }}" class="alert-link">Увійдіть</a>, щоб залишити коментар.
+                        </div>
+                    {% endif %}
+
+                    <!-- Список коментарів -->
+                    {% if article.comments and article.comments|length > 0 %}
+                        <div class="comments-list">
+                            {% for comment in article.comments|sort(attribute='date') %}
+                                <div class="card mb-3" id="comment-{{ comment.id }}">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="d-flex">
+                                                <img src="{{ comment.author.avatar(40) }}" 
+                                                     class="avatar-small me-2 rounded-circle" 
+                                                     alt="Avatar"
+                                                     onerror="this.src='{{ url_for('static', filename='avatars/default.png') }}'">
+                                                <div>
+                                                    <h6 class="mb-0">
+                                                        <a href="{{ url_for('user_profile', user_id=comment.author.id) }}" class="text-decoration-none">
+                                                            {{ comment.author.username }}
+                                                        </a>
+                                                        {% if comment.author.is_admin %}
+                                                            <span class="badge bg-danger ms-1">Адмін</span>
+                                                        {% endif %}
+                                                    </h6>
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-clock"></i> {{ comment.date.strftime('%d.%m.%Y %H:%M') }}
+                                                    </small>
+                                                </div>
+                                            </div>
+
+                                            {% if current_user.is_authenticated and 
+                                                  (current_user.id == comment.user_id or 
+                                                   current_user.id == article.user_id or 
+                                                   current_user.is_admin) %}
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" 
+                                                            onclick="editComment({{ comment.id }})"
+                                                            title="Редагувати">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" 
+                                                          method="POST" 
+                                                          style="display:inline;"
+                                                          onsubmit="return confirm('Видалити коментар?');">
+                                                        <button type="submit" class="btn btn-outline-danger" title="Видалити">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="comment-text mt-2" id="comment-text-{{ comment.id }}">
+                                            {{ comment.text|urlize(target='_blank') }}
+                                        </div>
+
+                                        <div class="edit-form mt-2" id="edit-form-{{ comment.id }}" style="display: none;">
+                                            <form action="{{ url_for('edit_comment', comment_id=comment.id) }}" method="POST">
+                                                <textarea class="form-control mb-2" name="text" rows="2">{{ comment.text }}</textarea>
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-lg"></i> Зберегти
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-secondary" onclick="cancelEdit({{ comment.id }})">
+                                                    <i class="bi bi-x-lg"></i> Скасувати
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-chat" style="font-size: 3rem;"></i>
+                            <p class="mt-2">Ще немає коментарів. Будьте першим!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Бокова панель -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Про автора</h5>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ article.author.avatar(120) }}" 
+                         class="rounded-circle img-thumbnail mb-3" 
+                         style="width: 120px; height: 120px; object-fit: cover;">
+                    <h5>{{ article.author.username }}</h5>
+                    <p class="text-muted small">{{ article.author.email }}</p>
+                    
+                    <ul class="list-group list-group-flush text-start">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-file-text"></i> Статті</span>
+                            <span class="badge bg-primary rounded-pill">{{ article.author.articles|length }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-chat"></i> Коментарі</span>
+                            <span class="badge bg-info rounded-pill">{{ article.author.comments|length if article.author.comments else 0 }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-calendar"></i> Зареєстрований: {{ article.author.date_registered.strftime('%d.%m.%Y') }}
+                        </li>
+                    </ul>
+                    
+                    <a href="{{ url_for('user_profile', user_id=article.author.id) }}" class="btn btn-outline-info w-100 mt-3">
+                        <i class="bi bi-person"></i> Всі статті автора
+                    </a>
+                </div>
+            </div>
+
+            <!-- Мініатюри інших постів автора (опціонально) -->
+            {% if article.author.articles|length > 1 %}
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Інші статті автора</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for other in article.author.articles %}
+                                {% if other.id != article.id %}
+                                    <a href="{{ url_for('post_detail', id=other.id) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ other.title }}</h6>
+                                            <small>{{ other.date.strftime('%d.%m.%Y') }}</small>
+                                        </div>
+                                        <small class="text-muted">{{ other.intro[:60] }}...</small>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для коментарів -->
+<script>
+function editComment(commentId) {
+    document.getElementById('comment-text-' + commentId).style.display = 'none';
+    document.getElementById('edit-form-' + commentId).style.display = 'block';
+}
+
+function cancelEdit(commentId) {
+    document.getElementById('comment-text-' + commentId).style.display = 'block';
+    document.getElementById('edit-form-' + commentId).style.display = 'none';
+}
+
+// Плавний скрол до коментаря при натисканні на посилання
+if (window.location.hash) {
+    const element = document.getElementById(window.location.hash.substring(1));
+    if (element) {
+        setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth' });
+            element.classList.add('highlight');
+            setTimeout(() => element.classList.remove('highlight'), 2000);
+        }, 100);
+    }
+}
+</script>
+
+<!-- Стилі -->
+<style>
+    /* Стилі для тексту */
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        word-wrap: break-word;
+    }
+    
+    /* Стилі для посилань */
+    .post-content a {
+        color: #0d6efd;
+        text-decoration: none;
+        border-bottom: 1px dotted #0d6efd;
+        transition: all 0.2s ease;
+        word-break: break-all;
+    }
+    
+    .post-content a:hover {
+        color: #0a58ca;
+        border-bottom: 1px solid #0a58ca;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    .post-content a[href^="http"]:after {
+        content: " 🔗";
+        font-size: 0.8em;
+        opacity: 0.7;
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+    
+    .post-content a[href^="http"]:hover:after {
+        transform: translate(2px, -2px);
+    }
+    
+    .post-content a[href*="youtube"]:after {
+        content: " ▶️";
+    }
+    
+    .post-content a[href*="github"]:after {
+        content: " 🐙";
+    }
+    
+    .post-content a[href$=".jpg"]:after,
+    .post-content a[href$=".jpeg"]:after,
+    .post-content a[href$=".png"]:after,
+    .post-content a[href$=".gif"]:after,
+    .post-content a[href$=".webp"]:after {
+        content: " 🖼️";
+    }
+    
+    /* Стилі для галереї */
+    .gallery-item {
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .gallery-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .gallery-item img {
+        transition: filter 0.3s ease;
+    }
+    
+    .gallery-item:hover img {
+        filter: brightness(1.05);
+    }
+    
+    /* Стилі для коментарів */
+    .comments-list .card {
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .comments-list .card:hover {
+        border-left-color: #0d6efd;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .comment-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+    }
+    
+    .comment-text a {
+        color: #0d6efd;
+        text-decoration: none;
+    }
+    
+    .highlight {
+        animation: highlight 2s ease;
+    }
+    
+    @keyframes highlight {
+        0% { background-color: #fff3cd; }
+        100% { background-color: transparent; }
+    }
+    
+    .avatar-small, .avatar-medium {
+        object-fit: cover;
+        border: 2px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

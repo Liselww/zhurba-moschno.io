@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Пошук користувачів{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">
+        <i class="bi bi-search"></i> Пошук користувачів
+    </h1>
+    
+    <!-- Форма пошуку -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <form action="{{ url_for('search_users') }}" method="GET" class="d-flex">
+                <input type="text" 
+                       name="q" 
+                       class="form-control form-control-lg me-2" 
+                       placeholder="Введіть ім'я користувача або email..."
+                       value="{{ query }}"
+                       required>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-search"></i> Шукати
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Результати пошуку -->
+    {% if query %}
+        <div class="row">
+            <div class="col-12">
+                <h3>Результати пошуку для "{{ query }}"</h3>
+                <p>Знайдено: {{ users|length }} користувачів</p>
+            </div>
+        </div>
+        
+        {% if users %}
+            <div class="row mt-3">
+                {% for user in users %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <!-- Аватарка -->
+                                <img src="{{ user.avatar(100) }}" 
+                                     class="rounded-circle img-thumbnail mb-3" 
+                                     style="width: 100px; height: 100px; object-fit: cover;">
+                                
+                                <h5 class="card-title">
+                                    {{ user.username }}
+                                    {% if user.is_admin %}
+                                        <span class="badge bg-danger">Адмін</span>
+                                    {% endif %}
+                                </h5>
+                                
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        <i class="bi bi-envelope"></i> {{ user.email }}<br>
+                                        <i class="bi bi-calendar"></i> з {{ user.date_registered.strftime('%d.%m.%Y') }}<br>
+                                        <i class="bi bi-file-text"></i> {{ user.articles|length }} статей
+                                    </small>
+                                </p>
+                                
+                                <a href="{{ url_for('user_profile', user_id=user.id) }}" 
+                                   class="btn btn-primary">
+                                    <i class="bi bi-person"></i> Переглянути профіль
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i> 
+                Нічого не знайдено. Спробуйте інший запит.
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

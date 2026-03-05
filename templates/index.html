@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Головна{% endblock %}
+
+<style>
+    .impact-title {
+        font-family: 'Impact', sans-serif;
+        font-size: 3rem; /* Розмір шрифту */
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3); /* Тінь */
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4); /* Градієнт */
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+</style>
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="impact-title">ЖУРБЄНКОВА ОСНОВА САЙТА!</h1>
+</div>
+
+<div class="to-about">
+    <a href="/about"><h2>Перейдите в About для подробностей...</h2></a>
+</div>
+
+    <!-- Відео з YouTube -->
+    <div class="mt-4">
+        <div class="ratio ratio-16x9">
+            <iframe
+                src="https://www.youtube.com/embed/iutfQ8okGX8"
+                title="YouTube video"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+
+<div class="mt-4">
+    <a href="{{ url_for('zhurba_songs') }}"
+       class="btn btn-success btn-lg">
+        <i class="bi bi-music-note-beamed"></i> Журба Пісні
+    </a>
+</div>
+{% endblock %}

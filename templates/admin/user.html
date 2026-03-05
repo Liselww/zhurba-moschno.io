@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Управління користувачами{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">
+        <i class="bi bi-people"></i> Управління користувачами
+    </h1>
+    
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ім'я</th>
+                        <th>Email</th>
+                        <th>Права</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.comments|length }}</td>
+                        <td>
+                            {% if user.is_admin %}
+                                <span class="badge bg-danger">Адмін</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Користувач</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,134 @@
+/* static/css/main.css */
+
+/* Існуючі стилі з base.html можна перенести сюди */
+.avatar-small {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-medium {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-large {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Нові стилі */
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    transform: translateY(-2px);
+}
+
+a.text-decoration-none:hover .badge {
+    opacity: 0.9;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+/* Додаткові корисні стилі */
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+}
+
+.nav-link {
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.badge {
+    transition: all 0.2s ease;
+}
+
+/* Анімація для аватарок */
+.avatar-small, .avatar-medium, .avatar-large {
+    transition: transform 0.3s ease;
+}
+
+.avatar-small:hover, .avatar-medium:hover, .avatar-large:hover {
+    transform: scale(1.1);
+}
+
+/* Стилі для коментарів */
+.comment {
+    transition: background-color 0.3s ease;
+}
+
+.comment:hover {
+    background-color: #f8f9fa;
+}
+
+.comment-actions {
+    opacity: 0.3;
+    transition: opacity 0.3s ease;
+}
+
+.comment:hover .comment-actions {
+    opacity: 1;
+}
+
+/* Аватарки в коментарях */
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+/* Цитата коментаря */
+.comment-quote {
+    border-left: 3px solid #007bff;
+    padding-left: 15px;
+    margin: 10px 0;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Лічильник коментарів */
+.comment-count {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-left: 10px;
+}
+
+/* Анімація нового коментаря */
+@keyframes highlight {
+    0% { background-color: #fff3cd; }
+    100% { background-color: transparent; }
+}
+
+.highlight {
+    animation: highlight 2s ease;
+}
+
+/* Кнопки коментарів */
+.btn-comment {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}

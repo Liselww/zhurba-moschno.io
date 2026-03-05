@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Адмін-панель{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="mb-4">
+        <i class="bi bi-shield-lock"></i> Адмін-панель
+    </h1>
+    
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Користувачі</h5>
+                    <p class="card-text display-4">{{ users_count }}</p>
+                    <a href="{{ url_for('admin_users') }}" class="text-white">Управління →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Статті</h5>
+                    <p class="card-text display-4">{{ articles_count }}</p>
+                    <a href="{{ url_for('admin_articles') }}" class="text-white">Управління →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Нові сьогодні</h5>
+                    <p class="card-text display-4">{{ new_users_today }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-gear"></i> Швидкі дії
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary me-2">
+                        <i class="bi bi-people"></i> Користувачі
+                    </a>
+                    <a href="{{ url_for('admin_articles') }}" class="btn btn-success me-2">
+                        <i class="bi bi-file-text"></i> Статті
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

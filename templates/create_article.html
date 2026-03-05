@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Створити пост{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Створити новий пост</h1>
+
+    <div class="card">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">Нова Журбиність</h5>
+        </div>
+        <div class="card-body">
+            <!-- ВАЖЛИВО: enctype="multipart/form-data" для завантаження файлів -->
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Назва статті</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <label for="intro" class="form-label">Короткий опис</label>
+                    <input type="text" class="form-control" id="intro" name="intro" required>
+                </div>
+
+                <!-- НОВЕ ПОЛЕ: Завантаження картинок -->
+                <div class="mb-3">
+                    <label for="images" class="form-label">Додати зображення</label>
+                    <input type="file" class="form-control" id="images" name="images" multiple accept="image/png, image/jpeg, image/jpg, image/gif, image/webp">
+                    <small class="text-muted">Можна вибрати кілька файлів. Формати: PNG, JPG, JPEG, GIF, WEBP.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="text" class="form-label">Текст статті</label>
+                    <textarea class="form-control" id="text" name="text" rows="10" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-warning">Опублікувати</button>
+                <a href="{{ url_for('posts') }}" class="btn btn-secondary">Скасувати</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

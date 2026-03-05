@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Ваш CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <title>{% block title %}Zhurba Interteiment{% endblock %}</title>
+    <style>
+        /* Стилі для відео-фону з YouTube */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+            pointer-events: none; /* Щоб не можна було клікнути на відео */
+        }
+        
+        .video-background iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 56.25vw; /* Співвідношення 16:9 */
+            min-height: 100vh;
+            min-width: 177.77vh; /* Співвідношення 16:9 */
+            transform: translate(-50%, -50%);
+            border: none;
+            pointer-events: none;
+        }
+        
+        /* Затемнення */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Змінюйте значення для темнішого/світлішого фону */
+            z-index: -1;
+        }
+        
+        /* Контент поверх відео */
+        .content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            color: white; /* Білий текст для кращої видимості на темному фоні */
+        }
+        
+        /* Навігація на темному фоні */
+        .navbar {
+            background-color: rgba(33, 37, 41, 0.9) !important; /* Напівпрозора навігація */
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Адаптація кольорів для контенту */
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .alert {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border: none;
+        }
+        
+        .table {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+        }
+        
+        .table td {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-control, .btn {
+            backdrop-filter: blur(5px);
+        }
+        
+        .dropdown-menu {
+            background-color: rgba(33, 37, 41, 0.95);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .dropdown-item {
+            color: white;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .text-muted {
+            color: rgba(255,255,255,0.7) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Відео-фон з YouTube -->
+    <div class="video-background">
+        <iframe 
+            src="https://www.youtube.com/embed/iutfQ8okGX8?autoplay=1&mute=1&loop=1&playlist=iutfQ8okGX8&controls=0&showinfo=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&rel=0"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+        </iframe>
+    </div>
+    
+    <!-- Затемнення -->
+    <div class="overlay"></div>
+    
+    <!-- Контент -->
+    <div class="content">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-dark bg-transparent mb-4">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/">
+                        <i class="bi bi-journal-text"></i> Zhurba Interteiment
+                    </a>
+                    
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/">Головна</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/about">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/news">
+                                    <i class="bi bi-newspaper"></i> ЖурбаNews
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/posts">Посты</a>
+                            </li>
+                            
+                            {% if current_user.is_authenticated and current_user.is_admin %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('admin_panel') }}">
+                                    <i class="bi bi-shield-lock"></i> Адмін-панель
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% if current_user.is_authenticated %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="/create-article">
+                                    <i class="bi bi-plus-circle"></i> Створити пост
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        
+                        <!-- Форма пошуку -->
+                        <form class="d-flex me-3" action="{{ url_for('search_users') }}" method="GET">
+                            <input class="form-control me-2 bg-dark text-white border-secondary" type="search" name="q" placeholder="Пошук користувачів..." aria-label="Search" required>
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </form>
+                        
+                        <ul class="navbar-nav">
+                            {% if current_user.is_authenticated %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                        <img src="{{ current_user.avatar(30) }}" class="avatar-small me-2" alt="Avatar">
+                                        {{ current_user.username }}
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{{ url_for('profile') }}">
+                                            <i class="bi bi-person"></i> Мій профіль
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                            <i class="bi bi-box-arrow-right"></i> Вийти
+                                        </a></li>
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('login') }}">
+                                        <i class="bi bi-box-arrow-in-right"></i> Увійти
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url_for('register') }}">
+                                        <i class="bi bi-person-plus"></i> Реєстрація
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Flash повідомлення -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- JavaScript для аватарок -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatars = document.querySelectorAll('img[class*="avatar"]');
+        
+        avatars.forEach(img => {
+            img.classList.add('loading');
+            
+            img.addEventListener('load', function() {
+                this.classList.remove('loading');
+                this.classList.remove('error');
+            });
+            
+            img.addEventListener('error', function() {
+                this.classList.remove('loading');
+                this.classList.add('error');
+                if (!this.src.includes('default.png')) {
+                    this.src = "{{ url_for('static', filename='avatars/default.png') }}";
+                }
+            });
+            
+            if (img.complete) {
+                img.classList.remove('loading');
+            }
+        });
+    });
+    </script>
+</body>
+</html>
